@@ -1,0 +1,75 @@
+@import url("https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@300;400;500;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: "Noto Sans SC", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  background: #0d0d1a;
+  color: #e0e0e0;
+  overflow-x: hidden;
+}
+
+@layer utilities {
+  .neon-text-cyan {
+    text-shadow: 0 0 7px rgba(0, 245, 212, 0.7),
+      0 0 20px rgba(0, 245, 212, 0.5), 0 0 40px rgba(0, 245, 212, 0.3);
+  }
+  .neon-text-orange {
+    text-shadow: 0 0 7px rgba(255, 107, 53, 0.7),
+      0 0 20px rgba(255, 107, 53, 0.5), 0 0 40px rgba(255, 107, 53, 0.3);
+  }
+  .neon-border-cyan {
+    box-shadow: 0 0 5px rgba(0, 245, 212, 0.3),
+      inset 0 0 5px rgba(0, 245, 212, 0.1);
+  }
+  .glass-card {
+    background: rgba(26, 26, 46, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0, 245, 212, 0.15);
+  }
+  .score-fly {
+    animation: scoreFly 1.2s ease-out forwards;
+  }
+  .combo-badge {
+    animation: comboPulse 0.6s ease-in-out;
+  }
+}
+
+@keyframes scoreFly {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-15px) scale(1.2);
+  }
+  100% {
+    opacity: 0.7;
+    transform: translateY(-30px) scale(0.9);
+  }
+}
+
+@keyframes comboPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
