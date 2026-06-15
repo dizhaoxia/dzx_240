@@ -1,7 +1,6 @@
 interface OptionButtonProps {
   label: string
   text: string
-  isSelected: boolean
   isCorrectAnswer: boolean
   isWrong: boolean
   disabled: boolean
@@ -11,7 +10,6 @@ interface OptionButtonProps {
 export default function OptionButton({
   label,
   text,
-  isSelected,
   isCorrectAnswer,
   isWrong,
   disabled,

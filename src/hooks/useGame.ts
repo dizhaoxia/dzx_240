@@ -23,7 +23,11 @@ export function useGame() {
   }, [])
 
   useEffect(() => {
-    if (state.state === "playing" && !state.answered) {
+    if (
+      state.state === "playing" &&
+      !state.answered &&
+      !state.showLevelComplete
+    ) {
       clearTimer()
       timerRef.current = setInterval(() => {
         dispatch({ type: "TICK" })
@@ -32,24 +36,28 @@ export function useGame() {
       clearTimer()
     }
     return clearTimer
-  }, [state.state, state.answered, clearTimer])
+  }, [state.state, state.answered, state.showLevelComplete, clearTimer])
 
   useEffect(() => {
-    if (state.state === "playing" && !state.answered && state.timeLeft <= 0) {
+    if (
+      state.state === "playing" &&
+      !state.answered &&
+      !state.showLevelComplete &&
+      state.timeLeft <= 0
+    ) {
       dispatch({ type: "TIME_UP" })
     }
-  }, [state.timeLeft, state.state, state.answered])
+  }, [state.timeLeft, state.state, state.answered, state.showLevelComplete])
 
   useEffect(() => {
-    if (state.answered && state.state === "playing") {
+    if (state.answered && state.state === "playing" && !state.showLevelComplete) {
       clearFeedbackTimer()
       feedbackTimerRef.current = setTimeout(() => {
         dispatch({ type: "NEXT_QUESTION" })
-        dispatch({ type: "COMPLETE_LEVEL" })
       }, 1500)
     }
     return clearFeedbackTimer
-  }, [state.answered, state.state, clearFeedbackTimer])
+  }, [state.answered, state.state, state.showLevelComplete, clearFeedbackTimer])
 
   const startGame = useCallback(() => {
     const questions = getRandomQuestions()
@@ -58,26 +66,27 @@ export function useGame() {
 
   const answerQuestion = useCallback(
     (answer: string) => {
-      if (state.answered) return
+      if (state.answered || state.showLevelComplete) return
       dispatch({ type: "ANSWER_QUESTION", payload: answer })
     },
-    [state.answered]
+    [state.answered, state.showLevelComplete]
   )
 
-  const nextLevel = useCallback(() => {
-    dispatch({ type: "NEXT_LEVEL" })
+  const continueNextLevel = useCallback(() => {
+    dispatch({ type: "CONTINUE_NEXT_LEVEL" })
   }, [])
 
   const restartGame = useCallback(() => {
     clearFeedbackTimer()
+    clearTimer()
     dispatch({ type: "RESTART_GAME" })
-  }, [clearFeedbackTimer])
+  }, [clearFeedbackTimer, clearTimer])
 
   return {
     state,
     startGame,
     answerQuestion,
-    nextLevel,
+    continueNextLevel,
     restartGame,
   }
 }

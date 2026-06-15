@@ -1,25 +1,32 @@
-import { Trophy, Star, Zap, Flame, Timer, TrendingUp } from "lucide-react"
+import { Trophy, Star, Timer, ChevronRight, PartyPopper } from "lucide-react"
 import type { GameData } from "@/types/game"
-import { TOTAL_QUESTIONS, QUESTIONS_PER_LEVEL, TOTAL_LEVELS, getLevelMultiplier, getLevelTimeLimit } from "@/data/questions"
+import {
+  TOTAL_QUESTIONS,
+  QUESTIONS_PER_LEVEL,
+  TOTAL_LEVELS,
+  TIME_PER_QUESTION,
+} from "@/data/questions"
 import CountdownTimer from "./CountdownTimer"
 import OptionButton from "./OptionButton"
 
 interface PlayingScreenProps {
   state: GameData
   onAnswer: (answer: string) => void
+  onContinueNextLevel: () => void
 }
 
 const OPTION_LABELS = ["A", "B", "C", "D"]
 
-export default function PlayingScreen({ state, onAnswer }: PlayingScreenProps) {
+export default function PlayingScreen({
+  state,
+  onAnswer,
+  onContinueNextLevel,
+}: PlayingScreenProps) {
   const currentQuestion = state.questions[state.currentIndex]
   const questionInLevel =
     (state.currentIndex % QUESTIONS_PER_LEVEL) + 1
 
   if (!currentQuestion) return null
-
-  const multiplier = getLevelMultiplier(state.currentLevel)
-  const timeLimit = getLevelTimeLimit(state.currentLevel)
 
   return (
     <div className="min-h-screen flex flex-col px-4 py-6 max-w-2xl mx-auto">
@@ -32,21 +39,13 @@ export default function PlayingScreen({ state, onAnswer }: PlayingScreenProps) {
             </span>
           </div>
           <div className="glass-card rounded-lg px-3 py-1.5 flex items-center gap-1.5">
-            <Zap className="w-4 h-4 text-neon-purple" />
+            <Star className="w-4 h-4 text-neon-purple" />
             <span className="font-body text-sm text-neon-purple">
               第 {state.currentLevel}/{TOTAL_LEVELS} 关
             </span>
           </div>
-          {state.combo >= 2 && (
-            <div className="glass-card rounded-lg px-3 py-1.5 flex items-center gap-1.5 animate-scale-in combo-badge">
-              <Flame className="w-4 h-4 text-neon-orange" />
-              <span className="font-display text-sm text-neon-orange">
-                x{state.combo} 连击
-              </span>
-            </div>
-          )}
         </div>
-        <CountdownTimer timeLeft={state.timeLeft} maxTime={timeLimit} />
+        <CountdownTimer timeLeft={state.timeLeft} maxTime={TIME_PER_QUESTION} />
       </div>
 
       <div className="w-full bg-white/5 rounded-full h-1.5 mb-6">
@@ -61,7 +60,6 @@ export default function PlayingScreen({ state, onAnswer }: PlayingScreenProps) {
       <div className="glass-card rounded-2xl p-6 md:p-8 mb-6 animate-scale-in">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Star className="w-4 h-4 text-neon-cyan" />
             <span className="text-xs text-gray-400 font-body">
               第 {state.currentLevel} 关 · 第 {questionInLevel}/{QUESTIONS_PER_LEVEL} 题
             </span>
@@ -69,14 +67,8 @@ export default function PlayingScreen({ state, onAnswer }: PlayingScreenProps) {
           <div className="flex items-center gap-2">
             <span className="text-xs text-gray-500 font-body flex items-center gap-1">
               <Timer className="w-3 h-3" />
-              {timeLimit}s
+              {TIME_PER_QUESTION}s
             </span>
-            {multiplier > 1 && (
-              <span className="text-xs text-neon-purple font-body flex items-center gap-1">
-                <TrendingUp className="w-3 h-3" />
-                x{multiplier}
-              </span>
-            )}
           </div>
         </div>
         <h2 className="font-display text-2xl md:text-3xl text-white leading-relaxed">
@@ -98,7 +90,6 @@ export default function PlayingScreen({ state, onAnswer }: PlayingScreenProps) {
               key={index}
               label={OPTION_LABELS[index]}
               text={option}
-              isSelected={state.selectedAnswer === option}
               isCorrectAnswer={isCorrectAnswer}
               isWrong={isWrong}
               disabled={state.answered}
@@ -108,28 +99,11 @@ export default function PlayingScreen({ state, onAnswer }: PlayingScreenProps) {
         })}
       </div>
 
-      {state.answered && state.isCorrect && state.lastScoreBreakdown && (
+      {state.answered && state.isCorrect && (
         <div className="mt-4 text-center animate-scale-in">
-          <div className="inline-flex flex-col items-center gap-1">
-            <span className="text-green-400 font-display text-lg">
-              🎉 答对了！
-            </span>
-            <div className="flex items-center gap-3 text-sm font-body">
-              <span className="text-green-300">基础 +{state.lastScoreBreakdown.base}</span>
-              {state.lastScoreBreakdown.combo > 0 && (
-                <span className="text-neon-orange">连击 +{state.lastScoreBreakdown.combo}</span>
-              )}
-              {state.lastScoreBreakdown.timeBonus > 0 && (
-                <span className="text-neon-cyan">时间 +{state.lastScoreBreakdown.timeBonus}</span>
-              )}
-              {state.lastScoreBreakdown.levelMultiplier > 1 && (
-                <span className="text-neon-purple">x{state.lastScoreBreakdown.levelMultiplier}</span>
-              )}
-            </div>
-            <span className="text-yellow-300 font-display text-xl score-fly">
-              +{state.lastScoreBreakdown.total}
-            </span>
-          </div>
+          <span className="text-green-400 font-display text-lg">
+            🎉 答对了！+10分
+          </span>
         </div>
       )}
       {state.answered && !state.isCorrect && (
@@ -137,11 +111,56 @@ export default function PlayingScreen({ state, onAnswer }: PlayingScreenProps) {
           <span className="text-red-400 font-display text-lg">
             😅 答错了！正确答案：{currentQuestion.answer}
           </span>
-          {state.combo > 0 && (
-            <div className="text-red-300/60 text-sm font-body mt-1">
-              连击中断 😢
+        </div>
+      )}
+
+      {state.showLevelComplete && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4">
+          <div className="glass-card rounded-3xl p-8 md:p-10 text-center max-w-md w-full animate-scale-in">
+            <div className="mb-6">
+              <PartyPopper className="w-16 h-16 text-neon-cyan mx-auto animate-float" />
             </div>
-          )}
+
+            <h2 className="font-display text-3xl text-neon-cyan neon-text-cyan mb-2">
+              恭喜过关！
+            </h2>
+
+            <p className="font-body text-gray-400 mb-6">
+              第 {state.currentLevel} 关完成
+            </p>
+
+            <div className="glass-card rounded-xl p-4 mb-8 space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-gray-400 font-body text-sm">
+                  累计得分
+                </span>
+                <span className="text-neon-orange font-display text-xl">
+                  {state.score}
+                </span>
+              </div>
+              <div className="h-px bg-white/10" />
+              <div className="flex justify-between items-center">
+                <span className="text-gray-400 font-body text-sm">
+                  答对数
+                </span>
+                <span className="text-neon-cyan font-display">
+                  {state.correctCount}/{TOTAL_QUESTIONS}
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={onContinueNextLevel}
+              className="w-full px-8 py-3.5 bg-neon-cyan/10 border-2 border-neon-cyan rounded-full text-neon-cyan font-display text-lg transition-all duration-300 hover:bg-neon-cyan/20 hover:scale-105 active:scale-95"
+            >
+              进入下一关
+              <ChevronRight className="w-5 h-5 inline-block ml-1" />
+            </button>
+
+            <p className="mt-4 text-xs text-gray-500 font-body">
+              还有 {TOTAL_LEVELS - state.currentLevel} 关等你挑战
+            </p>
+          </div>
         </div>
       )}
     </div>

@@ -1,4 +1,4 @@
-import { RotateCcw, Trophy, Star, Flame } from "lucide-react"
+import { RotateCcw, Trophy, Star } from "lucide-react"
 import type { GameData } from "@/types/game"
 import { TOTAL_QUESTIONS } from "@/data/questions"
 
@@ -12,13 +12,13 @@ function getGrade(score: number): {
   color: string
   stars: number
 } {
-  const maxPossibleScore = TOTAL_QUESTIONS * 30
+  const maxPossibleScore = TOTAL_QUESTIONS * 10
   const ratio = score / maxPossibleScore
-  if (ratio >= 0.7)
+  if (ratio >= 0.8)
     return { label: "天才大师", color: "text-neon-cyan neon-text-cyan", stars: 5 }
-  if (ratio >= 0.5)
+  if (ratio >= 0.6)
     return { label: "智慧达人", color: "text-neon-purple", stars: 4 }
-  if (ratio >= 0.35)
+  if (ratio >= 0.4)
     return { label: "思维能手", color: "text-neon-orange", stars: 3 }
   if (ratio >= 0.2)
     return { label: "初级挑战者", color: "text-yellow-400", stars: 2 }
@@ -77,16 +77,6 @@ export default function GameOverScreen({
             <span className="text-gray-400 font-body">正确率</span>
             <span className="text-neon-purple font-display text-xl">
               {Math.round((state.correctCount / TOTAL_QUESTIONS) * 100)}%
-            </span>
-          </div>
-          <div className="h-px bg-white/10" />
-          <div className="flex justify-between items-center">
-            <span className="text-gray-400 font-body flex items-center gap-1">
-              <Flame className="w-3.5 h-3.5" />
-              最高连击
-            </span>
-            <span className="text-neon-orange font-display text-xl">
-              x{state.maxCombo}
             </span>
           </div>
         </div>

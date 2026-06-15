@@ -1,4 +1,4 @@
-export type GameState = "idle" | "playing" | "levelComplete" | "gameOver"
+export type GameState = "idle" | "playing" | "gameOver"
 
 export interface Question {
   id: number
@@ -8,30 +8,19 @@ export interface Question {
   difficulty: 1 | 2 | 3
 }
 
-export interface ScoreBreakdown {
-  base: number
-  combo: number
-  timeBonus: number
-  levelMultiplier: number
-  total: number
-}
-
 export interface GameData {
   state: GameState
   questions: Question[]
   currentIndex: number
   score: number
   correctCount: number
-  levelCorrectCount: number
   currentLevel: number
   timeLeft: number
   maxTime: number
   answered: boolean
   selectedAnswer: string | null
   isCorrect: boolean | null
-  combo: number
-  maxCombo: number
-  lastScoreBreakdown: ScoreBreakdown | null
+  showLevelComplete: boolean
 }
 
 export type GameAction =
@@ -39,7 +28,6 @@ export type GameAction =
   | { type: "ANSWER_QUESTION"; payload: string }
   | { type: "TIME_UP" }
   | { type: "NEXT_QUESTION" }
-  | { type: "COMPLETE_LEVEL" }
-  | { type: "NEXT_LEVEL" }
+  | { type: "CONTINUE_NEXT_LEVEL" }
   | { type: "RESTART_GAME" }
   | { type: "TICK" }

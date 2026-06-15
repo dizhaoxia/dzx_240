@@ -219,12 +219,6 @@ const hardQuestions: Question[] = [
   },
 ]
 
-const allQuestionsByDifficulty: Record<1 | 2 | 3, Question[]> = {
-  1: easyQuestions,
-  2: mediumQuestions,
-  3: hardQuestions,
-}
-
 export function shuffleArray<T>(arr: T[]): T[] {
   const shuffled = [...arr]
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -236,54 +230,17 @@ export function shuffleArray<T>(arr: T[]): T[] {
 
 export const QUESTIONS_PER_LEVEL = 5
 export const TOTAL_LEVELS = 5
-
-export function getLevelTimeLimit(level: number): number {
-  if (level <= 1) return 15
-  if (level <= 2) return 13
-  if (level <= 3) return 12
-  return 10
-}
-
-export function getLevelMultiplier(level: number): number {
-  if (level <= 1) return 1.0
-  if (level === 2) return 1.2
-  if (level === 3) return 1.5
-  if (level === 4) return 1.8
-  return 2.0
-}
-
-export function getLevelDifficulty(level: number): 1 | 2 | 3 {
-  if (level <= 2) return 1
-  if (level <= 3) return 2
-  return 3
-}
-
+export const TIME_PER_QUESTION = 15
 export const POINTS_PER_CORRECT = 10
+export const TOTAL_QUESTIONS = QUESTIONS_PER_LEVEL * TOTAL_LEVELS
+
+const allQuestions: Question[] = [
+  ...easyQuestions,
+  ...mediumQuestions,
+  ...hardQuestions,
+]
 
 export function getRandomQuestions(): Question[] {
-  const result: Question[] = []
-  for (let level = 1; level <= TOTAL_LEVELS; level++) {
-    const difficulty = getLevelDifficulty(level)
-    const pool = shuffleArray(allQuestionsByDifficulty[difficulty])
-    const levelQuestions = pool.slice(0, QUESTIONS_PER_LEVEL)
-    if (levelQuestions.length < QUESTIONS_PER_LEVEL) {
-      const fallback = shuffleArray(
-        levelQuestions.length === 0
-          ? easyQuestions
-          : difficulty === 1
-            ? mediumQuestions
-            : easyQuestions
-      )
-      while (levelQuestions.length < QUESTIONS_PER_LEVEL) {
-        const candidate = fallback.pop()
-        if (candidate && !levelQuestions.find((q) => q.id === candidate.id)) {
-          levelQuestions.push(candidate)
-        }
-      }
-    }
-    result.push(...levelQuestions)
-  }
-  return result
+  const shuffled = shuffleArray(allQuestions)
+  return shuffled.slice(0, TOTAL_QUESTIONS)
 }
-
-export const TOTAL_QUESTIONS = QUESTIONS_PER_LEVEL * TOTAL_LEVELS
